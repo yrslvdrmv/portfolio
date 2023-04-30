@@ -95,3 +95,11 @@
 ---
 
 # #03 System store sensetive buyer information in encypted format
+1. Buyers' country should be encrypted
+2. Buyers' state should be encrypted
+3. Buyers' city should be encrypted
+4. Buyers' street should be encrypted
+5. Buyers' building should be encrypted
+6. Buyers' appartments should be encrypted
+7. Buyers' mobile phone number should be encrypted
+8. Buyers' email should be encrypted
