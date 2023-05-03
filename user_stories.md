@@ -12,23 +12,23 @@
     - **WHEN** user selects buyer
       - AND user enters medical license credentials
       - AND user enters license expiry date
-    - **THEN** system saves medical license
+    - **THEN** system should save medical license
 2. **SCENARIO: Duplicated license**
     - **GIVEN** license with credentials 'xxxxxxxx' exists in the system
     - **WHEN** user add a new license with credentials 'xxxxxxxx'
-    - **THEN** system return an error with message 'This license already exists in the system'
+    - **THEN** system should return an error with message 'This license already exists in the system'
 3. **SCENARIO: Invalid credentials**
     - **WHEN** user adds a new license with credentials less or more than 8 symbols
-    - **THEN** system return an error with message 'Wrong credentials format'
+    - **THEN** system should return an error with message 'Wrong credentials format'
 4. **SCENARIO: Invalid expiry date**
     - **WHEN** user adds a new license with expiry date < todays date
-    - **THEN** system return an error with message 'Expired license can't be added'
+    - **THEN** system should return an error with message 'Expired license can't be added'
 5. **SCENARIO: Missing credentials**
     - **WHEN** user adds a new license without credentials
-    - **THEN** system return an error with message 'Missing license credentials'
+    - **THEN** system should return an error with message 'Missing license credentials'
 6. **SCENARIO: Missing expiry date**
     - **WHEN** user adds a new license without expiry date
-    - **THEN** system return an error with message 'Missing license expiry date'
+    - **THEN** system should return an error with message 'Missing license expiry date'
 
 ---
 
