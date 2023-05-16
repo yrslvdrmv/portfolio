@@ -6,20 +6,43 @@ API submit a new order to the system
 ## Endpoint
 ```POST /v1/orders```
 ## Parameters
+```products```:  
+$~~~~~~~~~$ A list of products  
+$~~~~~~~~~$ required: yes  
+$~~~~~~~~~$ type: array of objects  
+$~~~~~~~~~$ max length: 50  
 ```product_id```:  
 $~~~~~~~~~$ id of product  
+$~~~~~~~~~$ required: yes  
+$~~~~~~~~~$ type: string  
 ```quantity```:  
 $~~~~~~~~~$ requested product quantity  
+$~~~~~~~~~$ required: yes  
+$~~~~~~~~~$ type: string  
+```buyer```:  
+$~~~~~~~~~$ Buyer details  
+$~~~~~~~~~$ required: yes  
+$~~~~~~~~~$ type: object  
 ```buyer_id```:  
 $~~~~~~~~~$ id of buyer  
+$~~~~~~~~~$ required: yes  
+$~~~~~~~~~$ type: string  
 ```website_id```:  
 $~~~~~~~~~$ id of website  
+$~~~~~~~~~$ required: yes  
+$~~~~~~~~~$ type: string  
 ```shipping_address_id```:  
 $~~~~~~~~~$ id of shipping address  
+$~~~~~~~~~$ required: yes  
+$~~~~~~~~~$ type: string  
 ```medical_license_id```:  
 $~~~~~~~~~$ id of medical license  
+$~~~~~~~~~$ required: yes  
+$~~~~~~~~~$ type: string  
 ```payment_details_id```:  
 $~~~~~~~~~$ id of payment information  
+$~~~~~~~~~$ required: yes  
+$~~~~~~~~~$ type: string  
 ## Input schema
 ```json
 {
@@ -43,7 +66,8 @@ $~~~~~~~~~$ id of payment information
 # Response
 ## Parameters
 ```order_id```:  
-$~~~~~~~~~$ id of submited order
+$~~~~~~~~~$ id of submited order  
+$~~~~~~~~~$ type: string  
 ## Output schema
 
 ```json
@@ -53,7 +77,7 @@ $~~~~~~~~~$ id of submited order
 ```
 # Errors
 
-| Status Code | Message |
+| HTTP Status Code | Message |
 | ------------- | ------------- |
 | 400  | Missing product id |
 | 400  | Invalid product id |
