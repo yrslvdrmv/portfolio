@@ -1,4 +1,4 @@
-RP-302 Reseller transaction function
+Reseller transaction function
 
 Updates for https://statystech.atlassian.net/browse/RP-300 in bold orange.
 1. Conduct function refactoring;
@@ -97,113 +97,113 @@ order_date = '2022-06-01';
   update reseller account balance  
 5. Case transaction_type = 711 and order_id != NULL:  
    _new order submission_  
-    - For each warehouseOrder in order:  
-          - For each orderLine in warehouseOrder:  
+    - For each warehouseOrder in order:
+        - For each orderLine in warehouseOrder:
+            - Create a record in resellerTransaction table where:  
+              _transaction for cost of goods payment_
+                  - resellerTransaction.resellerID = website.resellerID  
+                    WHERE website.websiteID = buyerAccount.websiteID  
+                    AND buyerAccount.buyerAccountID = orders.buyerAccountID  
+                    AND orders.orderID = order_id;  
+                  - resellerTransaction.warehouseID = warehouseOrder.warehouseID;  
+                  - resellerTransaction.orderID = order_id;  
+                  - resellerTransaction.warehouseOrderID = warehouseOrder.warehouseOrderID;  
+                  - resellerTransaction.orderLineID = orderLine.orderLineID;  
+                  - resellerTransaction.transactionTypeID = 711;  
+                  - resellerTransaction.quantity = orderLine.quantity;  
+                  - If reseller.currencyCD == warehouse.currencyCD:
+                      - resellerTransaction.currencyExchangeRate = 1;  
+                  - Else:  
+                      - resellerTransaction.currencyExchangeRate = currencyExchangeRate.exchangeRate *                           (1+currencyExchangeRate.marketplaceMarkup)  
+                        WHERE currencyExchangeRate.fromCurrencyCD = warehouse.currencyCD  
+                        AND currencyExchangeRate.toCurrencyCD = reseller.currencyCD  
+                        ORDER BY currencyExchangeRate.fxDate DESC  
+                        LIMIT 1;  
+                  - If warehouseInventory.warehouseProductPrice == NULL  
+                    WHERE warehouseInventory.warehouseID = warehouseOrder.warehouseID 
+                    AND warehouseInventory.productID = orderLine.productID:
+                      - resellerTransaction.warehouseProductPrice = encrypted(-1);
+                  - Ese:  
+                      - resellerTransaction.warehouseProductPrice = encrypted(warehouseInventory.warehouseProductPrice * resellerTransaction.currencyExchangeRate);  
+                  - resellerTransaction.transactionAmount = encrypted(decrypted(resellerTransaction.quantity) * decrypted(resellerTransaction.warehouseProductPrice) * -1);  
+              - reseller.resellerAccountBalance = encrypted(decrypted(reseller.resellerAccountBalance) + decrypted(resellerTransaction.transactionAmount));  
+                        _update reseller account balance_  
               - Create a record in resellerTransaction table where:  
-                _transaction for cost of goods payment_  
-                    - resellerTransaction.resellerID = website.resellerID  
-                      WHERE website.websiteID = buyerAccount.websiteID  
-                      AND buyerAccount.buyerAccountID = orders.buyerAccountID  
-                      AND orders.orderID = order_id;  
+                _transaction for marketplace fee_  
+                  - resellerTransaction.resellerID = website.resellerID  
+                    WHERE website.websiteID = buyerAccount.websiteID  
+                    AND buyerAccount.buyerAccountID = orders.buyerAccountID  
+                    AND orders.orderID = order_id;
                     - resellerTransaction.warehouseID = warehouseOrder.warehouseID;  
                     - resellerTransaction.orderID = order_id;  
                     - resellerTransaction.warehouseOrderID = warehouseOrder.warehouseOrderID;  
                     - resellerTransaction.orderLineID = orderLine.orderLineID;  
-                    - resellerTransaction.transactionTypeID = 711;  
+                    - resellerTransaction.transactionTypeID = 712; 
                     - resellerTransaction.quantity = orderLine.quantity;  
                     - If reseller.currencyCD == warehouse.currencyCD:  
-                      resellerTransaction.currencyExchangeRate = 1;  
+                        - resellerTransaction.currencyExchangeRate = 1;  
                     - Else:  
-                        - resellerTransaction.currencyExchangeRate = currencyExchangeRate.exchangeRate *                           (1+currencyExchangeRate.marketplaceMarkup)  
-                            WHERE currencyExchangeRate.fromCurrencyCD = warehouse.currencyCD  
-                            AND currencyExchangeRate.toCurrencyCD = reseller.currencyCD  
-                            ORDER BY currencyExchangeRate.fxDate DESC  
-                            LIMIT 1;  
-If warehouseInventory.warehouseProductPrice == NULL
-WHERE warehouseInventory.warehouseID = warehouseOrder.warehouseID 
-AND warehouseInventory.productID = orderLine.productID:
-resellerTransaction.warehouseProductPrice = encrypted(-1);
-Ese:
-resellerTransaction.warehouseProductPrice = encrypted(warehouseInventory.warehouseProductPrice * resellerTransaction.currencyExchangeRate);
-resellerTransaction.transactionAmount = encrypted(decrypted(resellerTransaction.quantity) * decrypted(resellerTransaction.warehouseProductPrice) * -1);
-reseller.resellerAccountBalance = encrypted(decrypted(reseller.resellerAccountBalance) + decrypted(resellerTransaction.transactionAmount)); 
-# update reseller account balance
-Create a record in resellerTransaction table where: 
-# transaction for marketplace fee
-resellerTransaction.resellerID = website.resellerID 
-WHERE website.websiteID = buyerAccount.websiteID
-AND buyerAccount.buyerAccountID = orders.buyerAccountID
-AND orders.orderID = order_id;
-resellerTransaction.warehouseID = warehouseOrder.warehouseID;
-resellerTransaction.orderID = order_id;
-resellerTransaction.warehouseOrderID = warehouseOrder.warehouseOrderID;
-resellerTransaction.orderLineID = orderLine.orderLineID;
-resellerTransaction.transactionTypeID = 712;
-resellerTransaction.quantity = orderLine.quantity;
-If reseller.currencyCD == warehouse.currencyCD:
-resellerTransaction.currencyExchangeRate = 1;
-Else:
-resellerTransaction.currencyExchangeRate = currencyExchangeRate.exchangeRate * (1+currencyExchangeRate.marketplaceMarkup)
-WHERE currencyExchangeRate.fromCurrencyCD = warehouse.currencyCD
-AND currencyExchangeRate.toCurrencyCD = reseller.currencyCD
-ORDER BY currencyExchangeRate.fxDate DESC
-LIMIT 1;
-If warehouseInventory.warehouseProductPrice == NULL
-WHERE warehouseInventory.warehouseID = warehouseOrder.warehouseID 
-AND warehouseInventory.productID = orderLine.productID:
-resellerTransaction.warehouseProductPrice = encrypted(-1);
-Ese:
-resellerTransaction.warehouseProductPrice = encrypted(warehouseInventory.warehouseProductPrice * resellerTransaction.currencyExchangeRate);
-resellerTransaction.transactionAmount = encrypted(decrypted(resellerTransaction.quantity) * decrypted(resellerTransaction.warehouseProductPrice) * decrypted(reseller.resellerMarketplaceFee) * -1);
-reseller.resellerAccountBalance = encrypted(decrypted(reseller.resellerAccountBalance) + decrypted(resellerTransaction.transactionAmount)); 
-# update reseller account balance
-6. Case transaction_type = 721 and (order_id != NULL xor warehouse_order_id != NULL):
-# cancel order https://statystech.atlassian.net/browse/OMS-949
-# cancel warehouse order (positive transactions, refund) https://statystech.atlassian.net/browse/OMS-957
-If order_id != NULL:
-Get a list of warehouse order ids as warehouse_orders
-WHERE warehouseOrder.orderID = order_id 
-AND warehouseOrder.warehouseOrderStatusID != 0;
-Else:
-warehouse_orders[0] = warehouse_order_id;
-For each warehouse_order_id in warehouse_orders:
-For each orderLineID in orderLine:
-WHERE orderLine.warehouseOrderID = warehouse_order_id
-AND orderLine.isDeleted = 0:
-Calculate the weighted average price:
-weighted_average_price = ABS(SUM(decrypted(resellerTransaction.transactionAmount)) / SUM(resellerTransaction.quantity)
-WHERE resellerTransaction.orderLineID = order_line_id
-AND resellerTransaction.transactionTypeID IN (711, 721));
-Create a record in resellerTransaction table where: 
-# transaction for cost of goods payment
-resellerTransaction.resellerID = website.resellerID 
-WHERE website.websiteID = buyerAccount.websiteID
-AND buyerAccount.buyerAccountID = orders.buyerAccountID
-AND orders.orderID = order_id;
-resellerTransaction.warehouseID = warehouseOrder.warehouseID;
-resellerTransaction.orderID = order_id;
-resellerTransaction.warehouseOrderID = warehouseOrder.warehouseOrderID;
-resellerTransaction.orderLineID = orderLine.orderLineID;
-resellerTransaction.transactionTypeID = 721;
-resellerTransaction.quantity = encrypted(decrypted(orderLine.quantity) * -1);
-resellerTransaction.warehouseProductPrice = encrypted(weighted_average_price);
-resellerTransaction.transactionAmount = encrypted(decrypted(resellerTransaction.quantity) * decrypted(resellerTransaction.warehouseProductPrice) * -1);
-reseller.resellerAccountBalance = encrypted(decrypted(reseller.resellerAccountBalance) +decrypted(resellerTransaction.transactionAmount));
-Create a record in resellerTransaction table where: 
-# transaction for marketplace fee
-resellerTransaction.resellerID = website.resellerID 
-WHERE website.websiteID = buyerAccount.websiteID
-AND buyerAccount.buyerAccountID = orders.buyerAccountID
-AND orders.orderID = order_id;
-resellerTransaction.warehouseID = warehouseOrder.warehouseID;
-resellerTransaction.orderID = order_id;
-resellerTransaction.warehouseOrderID = warehouseOrder.warehouseOrderID;
-resellerTransaction.orderLineID = orderLine.orderLineID;
-resellerTransaction.transactionTypeID = 722;
-resellerTransaction.quantity = encrypted(decrypted(orderLine.quantity) * -1);
-resellerTransaction.warehouseProductPrice = encrypted(weighted_average_price);
-resellerTransaction.transactionAmount = encrypted(decrypted(resellerTransaction.quantity) * decrypted(resellerTransaction.warehouseProductPrice) * decrypted(reseller.resellerMarketplaceFee) * -1);
-reseller.resellerAccountBalance = encrypted(decrypted(reseller.resellerAccountBalance) +resellerTransaction.transactionAmount);
+                        - resellerTransaction.currencyExchangeRate = currencyExchangeRate.exchangeRate * (1+currencyExchangeRate.marketplaceMarkup)
+                        WHERE currencyExchangeRate.fromCurrencyCD = warehouse.currencyCD
+                        AND currencyExchangeRate.toCurrencyCD = reseller.currencyCD
+                        ORDER BY currencyExchangeRate.fxDate DESC
+                        LIMIT 1;
+                    - If warehouseInventory.warehouseProductPrice == NULL  
+                      WHERE warehouseInventory.warehouseID = warehouseOrder.warehouseID  
+                      AND warehouseInventory.productID = orderLine.productID:  
+                          - resellerTransaction.warehouseProductPrice = encrypted(-1);  
+                    - Ese:  
+                        - resellerTransaction.warehouseProductPrice = encrypted(warehouseInventory.warehouseProductPrice * resellerTransaction.currencyExchangeRate);  
+                    - resellerTransaction.transactionAmount = encrypted(decrypted(resellerTransaction.quantity) * decrypted(resellerTransaction.warehouseProductPrice) * decrypted(reseller.resellerMarketplaceFee) * -1);  
+                - reseller.resellerAccountBalance = encrypted(decrypted(reseller.resellerAccountBalance) + decrypted(resellerTransaction.transactionAmount)); 
+                  _update reseller account balance_  
+6. Case transaction_type = 721 and (order_id != NULL xor warehouse_order_id != NULL):  
+   _cancel order_  
+   _cancel warehouse order (positive transactions, refund)_
+    - If order_id != NULL:
+        - Get a list of warehouse order ids as warehouse_orders  
+          WHERE warehouseOrder.orderID = order_id   
+          AND warehouseOrder.warehouseOrderStatusID != 0;  
+    - Else:  
+        - warehouse_orders[0] = warehouse_order_id;  
+    - For each warehouse_order_id in warehouse_orders:  
+        - For each orderLineID in orderLine:  
+          WHERE orderLine.warehouseOrderID = warehouse_order_id  
+          AND orderLine.isDeleted = 0:
+            - Calculate the weighted average price:
+                - weighted_average_price = ABS(SUM(decrypted(resellerTransaction.transactionAmount)) / SUM(resellerTransaction.quantity)  
+                  WHERE resellerTransaction.orderLineID = order_line_id  
+                  AND resellerTransaction.transactionTypeID IN (711, 721));  
+              - Create a record in resellerTransaction table where:  
+                _transaction for cost of goods payment_  
+                  - resellerTransaction.resellerID = website.resellerID   
+                    WHERE website.websiteID = buyerAccount.websiteID  
+                    AND buyerAccount.buyerAccountID = orders.buyerAccountID  
+                    AND orders.orderID = order_id;  
+                  - resellerTransaction.warehouseID = warehouseOrder.warehouseID;  
+                  - resellerTransaction.orderID = order_id;  
+                  - resellerTransaction.warehouseOrderID = warehouseOrder.warehouseOrderID;  
+                  - resellerTransaction.orderLineID = orderLine.orderLineID;  
+                  - resellerTransaction.transactionTypeID = 721;  
+                  - resellerTransaction.quantity = encrypted(decrypted(orderLine.quantity) * -1);  
+                  - resellerTransaction.warehouseProductPrice = encrypted(weighted_average_price);  
+                  - resellerTransaction.transactionAmount = encrypted(decrypted(resellerTransaction.quantity) * decrypted(resellerTransaction.warehouseProductPrice) * -1);  
+              - reseller.resellerAccountBalance = encrypted(decrypted(reseller.resellerAccountBalance) +decrypted(resellerTransaction.transactionAmount));  
+              - Create a record in resellerTransaction table where:  
+                _transaction for marketplace fee_
+                  - resellerTransaction.resellerID = website.resellerID  
+                      WHERE website.websiteID = buyerAccount.websiteID  
+                      AND buyerAccount.buyerAccountID = orders.buyerAccountID  
+                      AND orders.orderID = order_id;  
+                  - resellerTransaction.warehouseID = warehouseOrder.warehouseID;  
+                  - resellerTransaction.orderID = order_id;  
+                  - resellerTransaction.warehouseOrderID = warehouseOrder.warehouseOrderID;  
+                  - resellerTransaction.orderLineID = orderLine.orderLineID;  
+                  - resellerTransaction.transactionTypeID = 722;  
+                  - resellerTransaction.quantity = encrypted(decrypted(orderLine.quantity) * -1);  
+                  - resellerTransaction.warehouseProductPrice = encrypted(weighted_average_price);  
+                  - resellerTransaction.transactionAmount = encrypted(decrypted(resellerTransaction.quantity) * decrypted(resellerTransaction.warehouseProductPrice) * decrypted(reseller.resellerMarketplaceFee) * -1);  
+                - reseller.resellerAccountBalance = encrypted(decrypted(reseller.resellerAccountBalance)  +resellerTransaction.transactionAmount);  
 7. Case transaction_type = 711 and order_line_id != NULL and quantity != NULL:
 # cancel warehouse order https://statystech.atlassian.net/browse/OMS-957 
 # move order line https://statystech.atlassian.net/browse/LWA-1265
