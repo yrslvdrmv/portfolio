@@ -1,0 +1,28 @@
+Custom fields for objectives and key results feature  
+
+Customer need
+- Enrich objectives and key results with custom data
+- Filter and sort by custom data
+
+User stories
+1.  As an Admin
+    I want to create custom fields
+    So that I can
+2. Edit custom field
+3. View custom fields
+4. View custom field details
+5. Delete custom field
+6. Activate / Deactivate custom field
+7. View custom field in elements list
+8. View custom field in element
+9. Update custom filed in element
+10. Filter by csutom field
+11. Sort by custom field
+12. Export custom fields with elements export
+
+
+Tasks
+1. Update data model
+2. Internal API
+External API
+User interface
