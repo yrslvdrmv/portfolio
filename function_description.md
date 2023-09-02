@@ -7,29 +7,16 @@ Updates for https://statystech.atlassian.net/browse/RP-300 in bold orange.
 
 **Function**  
 resellerTransaction (  
-  reseller_id=NULL,  
-  transaction_type=NULL,  
-  transaction_amount=NULL,  
-  order_id=NULL,  
-  parcel_line_id=NULL,  
-  quantity=NULL,  
-  warehouse_order_id=NULL,  
-  order_line_id=NULL,  
-  warehouse_id=NULL,  
-  parcel_id=NULL);  
-  
-**Function arguments**
-
-- reseller_id : int  
-- transaction_type : int  
-- transaction_amount : float  
-- order_id : int  
-- parcel_line_id : int  
-- quantity : int  
-- warehouse_order_id : int  
-- order_line_id : int  
-- warehouse_id : int  
-- parcel_id : int  
+- reseller_id : int, default NULL  
+- transaction_type : int, default NULL  
+- transaction_amount : float, default NULL  
+- order_id : int, default NULL  
+- parcel_line_id : int, default NULL  
+- quantity : int, default NULL  
+- warehouse_order_id : int, default NULL  
+- order_line_id : int, default NULL  
+- warehouse_id : int, default NULL  
+- parcel_id : int, default NULL  
 
 **Config parameters**  
 order_date = '2022-06-01';  
